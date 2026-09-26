@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}Build Your Profile — CareerAI{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:780px;">
+  <div class="text-center mb-4">
+    <h2 class="fw-bold">Build Your Profile</h2>
+    <p class="text-muted">Complete all steps so our AI can match you perfectly</p>
+    <!-- Progress bar -->
+    <div class="progress mb-2" style="height:8px;">
+      <div id="progressBar" class="progress-bar bg-primary transition-bar" style="width:20%"></div>
+    </div>
+    <small class="text-muted" id="stepLabel">Step 1 of 5</small>
+  </div>
+
+  <div id="alertBox" class="alert d-none"></div>
+
+  <!-- ── STEP 1: Academic Records ───────────────────────────────────────── -->
+  <div class="wizard-step" id="step1">
+    <div class="card border-0 shadow-sm p-4">
+      <h5 class="fw-bold mb-1"><i class="bi bi-mortarboard-fill text-primary me-2"></i>Academic Performance</h5>
+      <p class="text-muted small mb-4">Enter your scores (0-100) in each subject</p>
+      <div class="row g-3" id="academicFields">
+        {% for subj in ["Mathematics","Science","English","Commerce","Social Studies"] %}
+        <div class="col-md-6">
+          <label class="form-label fw-semibold small">{{ subj }}</label>
+          <div class="input-group">
+            <input type="number" class="form-control" data-subject="{{ subj }}"
+                   id="subj_{{ loop.index }}" placeholder="e.g. 78" min="0" max="100" />
+            <span class="input-group-text text-muted">/100</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: Technical Skills ──────────────────────────────────────── -->
+  <div class="wizard-step d-none" id="step2">
+    <div class="card border-0 shadow-sm p-4">
+      <h5 class="fw-bold mb-1"><i class="bi bi-tools text-warning me-2"></i>Technical Skills</h5>
+      <p class="text-muted small mb-4">Rate your proficiency from 0 (none) to 5 (expert)</p>
+      <div class="row g-3">
+        {% set tech_skills = [
+          ("Programming","bi-code-slash"),("Python","bi-filetype-py"),("Data Analysis","bi-bar-chart-fill"),
+          ("Machine Learning","bi-cpu-fill"),("SQL","bi-database-fill"),("Web Development","bi-globe2"),
+          ("Networking","bi-hdd-network-fill"),("CAD Software","bi-pencil-square"),
+          ("Circuit Design","bi-lightning-charge-fill"),("Mathematics","bi-calculator-fill"),
+        ] %}
+        {% for skill, icon in tech_skills %}
+        <div class="col-md-6">
+          <label class="form-label fw-semibold small"><i class="bi {{ icon }} me-1 text-primary"></i>{{ skill }}</label>
+          <div class="d-flex gap-1 skill-rating" data-skill="{{ skill }}" data-category="technical">
+            {% for i in range(1,6) %}
+            <button type="button" class="btn btn-sm btn-outline-primary rating-btn" data-val="{{ i }}">{{ i }}</button>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: Soft Skills ────────────────────────────────────────────── -->
+  <div class="wizard-step d-none" id="step3">
+    <div class="card border-0 shadow-sm p-4">
+      <h5 class="fw-bold mb-1"><i class="bi bi-people-fill text-success me-2"></i>Soft Skills</h5>
+      <p class="text-muted small mb-4">Rate each soft skill from 0 to 5</p>
+      <div class="row g-3">
+        {% set soft_skills = [
+          ("Communication","bi-chat-dots-fill"),("Leadership","bi-star-fill"),
+          ("Teamwork","bi-person-arms-up"),("Problem Solving","bi-lightbulb-fill"),
+          ("Creativity","bi-palette-fill"),("Attention to Detail","bi-search"),
+          ("Empathy","bi-heart-fill"),("Research","bi-journal-text"),
+        ] %}
+        {% for skill, icon in soft_skills %}
+        <div class="col-md-6">
+          <label class="form-label fw-semibold small"><i class="bi {{ icon }} me-1 text-success"></i>{{ skill }}</label>
+          <div class="d-flex gap-1 skill-rating" data-skill="{{ skill }}" data-category="soft">
+            {% for i in range(1,6) %}
+            <button type="button" class="btn btn-sm btn-outline-success rating-btn" data-val="{{ i }}">{{ i }}</button>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: Interests ──────────────────────────────────────────────── -->
+  <div class="wizard-step d-none" id="step4">
+    <div class="card border-0 shadow-sm p-4">
+      <h5 class="fw-bold mb-1"><i class="bi bi-heart-fill text-danger me-2"></i>Career Interests</h5>
+      <p class="text-muted small mb-4">How interested are you in each domain? (0-10)</p>
+      <div class="row g-4">
+        {% set domains = [
+          ("Technology","bi-cpu-fill","primary"),("Healthcare","bi-hospital-fill","danger"),
+          ("Engineering","bi-gear-fill","warning"),("Business","bi-briefcase-fill","success"),
+          ("Law","bi-bank","secondary"),("Design","bi-palette-fill","info"),
+          ("Arts & Media","bi-camera-fill","pink"),("Science & Research","bi-flask-fill","purple"),
+          ("Education","bi-book-fill","teal"),
+        ] %}
+        {% for domain, icon, color in domains %}
+        <div class="col-md-4">
+          <div class="interest-card p-3 rounded-3 border text-center h-100">
+            <i class="bi {{ icon }} fs-3 text-{{ color }} mb-2 d-block"></i>
+            <div class="fw-semibold small mb-2">{{ domain }}</div>
+            <input type="range" class="form-range interest-slider" data-domain="{{ domain }}"
+                   min="0" max="10" value="5" />
+            <div class="badge bg-{{ color }} bg-opacity-10 text-{{ color }} interest-val">5</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 5: Personality Quiz (RIASEC) ────────────────────────────── -->
+  <div class="wizard-step d-none" id="step5">
+    <div class="card border-0 shadow-sm p-4">
+      <h5 class="fw-bold mb-1"><i class="bi bi-person-badge-fill text-info me-2"></i>Personality Type (RIASEC)</h5>
+      <p class="text-muted small mb-4">Which description fits you <em>best</em>?</p>
+      <div class="row g-3">
+        {% set types = [
+          ("R","Realistic","I like working with tools, machines, or outdoors. I prefer hands-on tasks.","bi-wrench-adjustable-circle-fill","warning"),
+          ("I","Investigative","I enjoy research, analysis and solving complex intellectual problems.","bi-lightbulb-fill","primary"),
+          ("A","Artistic","I am creative and expressive — I love arts, music, writing or design.","bi-palette2","purple"),
+          ("S","Social","I love helping, teaching, counselling or working with people.","bi-people-fill","success"),
+          ("E","Enterprising","I enjoy leading, persuading and making business decisions.","bi-graph-up-arrow","danger"),
+          ("C","Conventional","I prefer organised, detail-oriented tasks and structured environments.","bi-grid-3x3-gap-fill","secondary"),
+        ] %}
+        {% for code, name, desc, icon, color in types %}
+        <div class="col-md-6">
+          <div class="riasec-option p-3 rounded-3 border h-100 cursor-pointer" data-code="{{ code }}"
+               onclick="selectRiasec(this)">
+            <div class="d-flex gap-3 align-items-start">
+              <i class="bi {{ icon }} fs-2 text-{{ color }} flex-shrink-0"></i>
+              <div>
+                <div class="fw-bold">{{ code }} — {{ name }}</div>
+                <div class="text-muted small">{{ desc }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Buttons -->
+  <div class="d-flex justify-content-between mt-4">
+    <button id="prevBtn" class="btn btn-outline-secondary px-4 d-none" onclick="navigate(-1)">
+      <i class="bi bi-arrow-left me-1"></i>Back
+    </button>
+    <button id="nextBtn" class="btn btn-primary px-5 fw-bold ms-auto" onclick="navigate(1)">
+      Next <i class="bi bi-arrow-right ms-1"></i>
+    </button>
+    <button id="submitBtn" class="btn btn-success px-5 fw-bold ms-auto d-none" onclick="submitProfile()">
+      <span id="submitSpinner" class="spinner-border spinner-border-sm me-2 d-none"></span>
+      <i class="bi bi-check-circle-fill me-1"></i>Get My Recommendations
+    </button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+{% endblock %}
